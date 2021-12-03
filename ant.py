@@ -6,8 +6,7 @@ from parameters import *
 
 '''
 Ant class
-Ants have hunger, which when reaching 0, ant disappears
-Ants should move randomly (for now, eventually will follow pheromones)
+1. Implement Ant wandering aimlessly. Make it smooth
 '''
 
 

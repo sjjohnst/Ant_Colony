@@ -2,6 +2,11 @@ import pygame
 from parameters import *
 from ant import Ant
 
+'''
+Sam Johnston
+December 2021
+'''
+
 # Parameters
 resolution = (400, 400)
 black = (0, 0, 0)
