@@ -19,7 +19,7 @@ fps = 30
 
 pause = False
 
-a = Ant()
+a = Ant((resolution[0]/2, resolution[1]/2))
 print(a.position)
 
 run = True

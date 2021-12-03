@@ -11,35 +11,41 @@ Ant class
 
 
 class Ant:
-    def __init__(self, position=np.random.rand(2), nest=None):
-        self.position = position * resolution
-        self.velocity = np.random.randn(2)
-        self.max_speed = 3
-        self.nest = nest
+    def __init__(self, position):
+
+        self.maxSpeed = 15
+        self.steerStrength = 10
+        self.wanderStrength = 0.1
+
+        self.position = position
+        self.velocity = np.random.rand(2) * 10
+        self.desiredDirection = np.random.rand(2)
+
         self.color = white
 
-    def updateVelocity(self):
-
-        delta_angle = math.pi/4
-        delta_mag = 1.0
-
-        i = self.velocity[0]
-        j = self.velocity[1]
-        mag = math.sqrt(i*i + j*j)
-        angle = math.atan(i/j)
-
-        new_angle = angle + random.uniform(-0.5, 0.5) * delta_angle
-        new_mag = mag + random.uniform(-0.5, 0.5) * delta_mag
-
-        new_i = new_mag * math.cos(new_angle)
-        new_j = new_mag * math.sin(new_angle)
-
-        self.velocity = np.array([new_i, new_j])
-
     def update(self):
-        # Update position based on velocity
-        self.position = self.position + self.velocity
-        self.updateVelocity()
+        # Update desired direction
+        random_mag = random.uniform(0, 1)
+        random_theta = random.uniform(0, 2*math.pi)
+        random_vector = np.array([random_mag * math.cos(random_theta), random_mag * math.sin(random_theta)])
+        dd = (self.desiredDirection + random_vector * self.wanderStrength)
+        self.desiredDirection = dd / np.linalg.norm(dd)
+
+        desiredVelocity = self.desiredDirection * self.maxSpeed
+        desiredSteeringForce = (desiredVelocity - self.velocity) * self.steerStrength
+        acceleration = self.clampMagnitude(desiredSteeringForce, self.steerStrength)
+
+        self.velocity = self.clampMagnitude(self.velocity + acceleration * 0.05, self.maxSpeed)
+        self.position += self.velocity * 0.05
+
+    def clampMagnitude(self, vector, maxLength):
+        mag = np.linalg.norm(vector)
+
+        if mag > maxLength:
+            theta = math.atan(vector[0] / vector[1])
+            vector = np.array([maxLength * math.cos(theta), maxLength * math.sin(theta)])
+
+        return vector
 
     def show(self, screen):
         pygame.draw.circle(screen, self.color, self.position, 2)
