@@ -8,10 +8,6 @@ Sam Johnston
 December 2021
 '''
 
-# Parameters
-resolution = (400, 400)
-black = (0, 0, 0)
-
 # Initialize pygame
 pygame.display.init()
 screen = pygame.display.set_mode(resolution)
@@ -23,7 +19,7 @@ pause = False
 # a = Ant((resolution[0]/2, resolution[1]/2))
 # print(a.position)
 
-colony = Colony((200, 200), 100)
+colony = Colony((300, 200), 10)
 
 run = True
 while run:

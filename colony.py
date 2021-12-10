@@ -31,4 +31,4 @@ class Colony:
             a.show(screen)
 
         # display ant hill
-        pygame.draw.circle(screen, self.color, self.position, 5)
+        pygame.draw.circle(screen, self.color, self.position, 10)
