@@ -9,6 +9,7 @@ Ant class
 1. Implement Ant wandering aimlessly. Make it smooth
 '''
 
+
 class Ant:
     def __init__(self, position):
 

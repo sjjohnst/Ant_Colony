@@ -1,6 +1,7 @@
 import pygame
 from parameters import *
 from ant import Ant
+from colony import Colony
 
 '''
 Sam Johnston
@@ -19,8 +20,10 @@ fps = 60
 
 pause = False
 
-a = Ant((resolution[0]/2, resolution[1]/2))
-print(a.position)
+# a = Ant((resolution[0]/2, resolution[1]/2))
+# print(a.position)
+
+colony = Colony((200, 200), 100)
 
 run = True
 while run:
@@ -41,8 +44,8 @@ while run:
 
     if not pause:
         # pygame.draw.circle(screen, orange, (100, 10), 2)
-        a.show(screen)
-        a.update()
+        colony.show(screen)
+        colony.update()
 
     pygame.display.flip()
 
