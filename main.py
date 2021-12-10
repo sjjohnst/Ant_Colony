@@ -15,7 +15,7 @@ black = (0, 0, 0)
 pygame.display.init()
 screen = pygame.display.set_mode(resolution)
 clock = pygame.time.Clock()
-fps = 30
+fps = 60
 
 pause = False
 
