@@ -23,8 +23,8 @@ class Ant:
 
         # Wandering parameters
         self.desired_direction = np.random.randn(2)
-        self.wander_strength = 0.15
-        self.steer_strength = 0.05
+        self.wander_strength = 0.08
+        self.steer_strength = 0.02
 
     def update(self):
 

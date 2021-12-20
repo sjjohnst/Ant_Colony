@@ -12,7 +12,6 @@ December 2021
 pygame.display.init()
 screen = pygame.display.set_mode(resolution)
 clock = pygame.time.Clock()
-fps = 60
 
 pause = False
 
