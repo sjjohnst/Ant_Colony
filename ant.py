@@ -7,6 +7,8 @@ from parameters import *
 '''
 Ant class
 1. Implement Ant wandering aimlessly. Make it smooth
+2. Add food items, have ants detect and steer towards food
+3. Add in pheromones, have ants leave trails and follow trails
 '''
 
 
@@ -48,3 +50,4 @@ class Ant:
 
     def show(self, screen):
         pygame.draw.circle(screen, self.color, self.position, 2)
+
