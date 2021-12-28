@@ -3,6 +3,7 @@ This file contains class definitions for multiple world objects:
 1. Food items
 2. Pheromones
 '''
+import pygame
 from parameters import *
 
 
@@ -13,6 +14,6 @@ class Food:
         self.y = y
         self.color = color
 
-    def show(self, ax):
-        ax.scatter(self.x, self.y, color=self.color, s=10)
+    def show(self, screen):
+        pygame.draw.circle(screen, self.color, (self.x, self.y), 2)
 

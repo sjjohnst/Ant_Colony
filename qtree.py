@@ -137,11 +137,16 @@ class QTree:
             self.south_west.plot(ax)
             self.south_east.plot(ax)
 
+    def show(self, screen):
+        # Display all the items stored in this QTree onto a pygame display
+        for point in self.points:
+            point.show(screen)
 
-def add_point(x,y,tree):
-    p = Point(x,y)
-    tree.insert(p)
-
+        if self.divided:
+            self.north_east.show(screen)
+            self.north_west.show(screen)
+            self.south_west.show(screen)
+            self.south_east.show(screen)
 
 # top_left = Point(0, 0)
 # bot_right = Point(200, 200)
