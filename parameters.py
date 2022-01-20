@@ -1,5 +1,5 @@
 # Module Parameters
-fps = 60
+fps = 200
 resolution = (800, 600)
 black = (0, 0, 0)
 white = (255, 255, 255)

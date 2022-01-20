@@ -19,7 +19,7 @@ pause = False
 # a = Ant((resolution[0]/2, resolution[1]/2))
 # print(a.position)
 
-colony = Colony((300, 200), 100)
+colony = Colony([300, 200], 1)
 
 # Instantiate a quad tree
 top_left = Point(0, 0)
