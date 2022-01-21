@@ -2,6 +2,7 @@ import random
 import pygame
 from ant import Ant
 from parameters import *
+from vector import *
 
 '''
 Colony class
@@ -19,7 +20,7 @@ class Colony:
 
         self.ant_dict = {}
         for i in range(self.n):
-            self.ant_dict[str(i)] = Ant(self.position)
+            self.ant_dict[str(i)] = Ant(Vector(self.position[0], self.position[1]))
 
     def update(self):
         for a in self.ant_dict.values():
