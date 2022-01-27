@@ -3,6 +3,8 @@ from parameters import *
 from objects import Food
 from qtree import *
 from colony import Colony
+from ant import Ant
+from vector import *
 
 '''
 Sam Johnston
@@ -16,10 +18,10 @@ clock = pygame.time.Clock()
 
 pause = False
 
-# a = Ant((resolution[0]/2, resolution[1]/2))
+# a = Ant(Vector(resolution[0]/2, resolution[1]/2))
 # print(a.position)
 
-colony = Colony([300, 200], 100)
+colony = Colony([resolution[0]/2, resolution[1]/2], 100)
 
 # Instantiate a quad tree
 top_left = Point(0, 0)
@@ -59,10 +61,13 @@ while run:
 
     if not pause:
         # pygame.draw.circle(screen, orange, (100, 10), 2)
+        colony.update(delta_time)
         colony.show(screen)
-        colony.update()
+        # a.update(delta_time)
+        # a.show(screen)
         tree.show(screen)
 
     pygame.display.flip()
 
+print(delta_time)
 pygame.quit()

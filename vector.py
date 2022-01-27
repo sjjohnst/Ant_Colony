@@ -1,4 +1,5 @@
 import math
+import random
 
 
 class Vector:
@@ -10,14 +11,20 @@ class Vector:
 
     def normalize(self):
         m = self.magnitude()
-        self.x = self.x / m
-        self.y = self.y / m
+        if m != 0:
+            self.x = self.x / m
+            self.y = self.y / m
+        return self
 
     def magnitude(self):
         return math.sqrt(self.x ** 2 + self.y ** 2)
 
     def angle(self):
-        return math.atan(self.y/self.x)
+        if self.x == 0:
+            theta = math.atan(math.inf*self.y)
+        else:
+            theta = math.atan(self.y/self.x)
+        return theta
 
     def get_coord(self):
         return (self.x, self.y)
@@ -30,16 +37,17 @@ class Vector:
     def scale(self, s):
         self.x = self.x * s
         self.y = self.y * s
+        return self
 
     def clamp(self, max_m):
         m = self.magnitude()
         if m > max_m:
-            theta = math.atan(self.y / self.x)
-            self.x = max_m * math.cos(theta)
-            self.y = max_m * math.sin(theta)
-
+            f = max_m / m
         else:
-            pass
+            f = 1.0
+        self.x = f*self.x
+        self.y = f*self.y
+        return self
 
     def __add__(self, other):
         new = Vector()
@@ -52,6 +60,21 @@ class Vector:
         new.x = self.x - other.x
         new.y = self.y - other.y
         return new
+
+    def __mul__(self, s):
+        self.x = self.x * s
+        self.y = self.y * s
+        return self
+
+    def __floordiv__(self, s):
+        self.x = self.x // s
+        self.y = self.y // s
+        return self
+
+    def int(self):
+        self.x = int(self.x)
+        self.y = int(self.y)
+        return self
 
 
 def dot(v1: Vector, v2: Vector) -> float:
@@ -81,3 +104,15 @@ def angle(v1: Vector, v2: Vector) -> float:
     theta = dot_product/mod_of_v1
 
     return theta
+
+
+def rand_inUnitCircle():
+    z = random.uniform(0, 1)
+    theta = (2.0 * math.pi) * z
+
+    r = random.uniform(0, 1)
+
+    x = r*math.cos(theta)
+    y = r*math.sin(theta)
+
+    return Vector(x, y)

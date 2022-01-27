@@ -21,42 +21,25 @@ class Ant:
 
         # Constant attributes
         self.color = white
-        self.max_speed = 1.0
+        self.maxSpeed = 0.1
+        self.steerStrength = 0.06
+        self.wanderStrength = 0.02
 
-        # Position, speed and direction
         self.position = position
-        init_speed = np.random.random_sample() * self.max_speed
-        init_direction = np.random.random_sample() * 2 * PI
+        self.velocity = rand_inUnitCircle()
+        self.desiredDirection = rand_inUnitCircle()
 
-        self.velocity = Vector(init_speed*math.cos(init_direction), init_speed*math.sin(init_direction))
+    def update(self, t):
 
-        # Wandering parameters
-        init_speed = np.random.random_sample() * self.max_speed
-        init_direction = np.random.random_sample() * 2 * PI
-        self.desired_velocity = Vector(init_speed*math.cos(init_direction), init_speed*math.sin(init_direction))
-        self.wander_strength = 0.1
-        self.steer_strength = 0.05
+        self.desiredDirection = (self.desiredDirection + rand_inUnitCircle() * self.wanderStrength).normalize()
 
-        # print(self.velocity, self.desired_velocity)
+        desiredVelocity = self.desiredDirection * self.maxSpeed
+        desiredSteeringForce = (desiredVelocity - self.velocity) * self.steerStrength
+        acceleration = desiredSteeringForce.clamp(self.steerStrength)
 
-    def update(self):
-
-        # Update position and velocity
-        self.position = self.position + self.velocity
-
-        # Update velocity towards desired
-        self.velocity = slerp(self.velocity, self.desired_velocity, self.steer_strength)
-
-        # Update desired by random perturbation
-        r = list(np.random.randn(2))
-        random_perturbation = Vector(r[0], r[1])
-        # random_perturbation.clamp(self.wander_strength)
-        # self.desired_velocity = self.desired_velocity + random_perturbation
-
-        # Clamp desired velocity and true velocity
-        self.velocity.clamp(self.max_speed)
-        self.desired_velocity.clamp(self.max_speed)
+        self.velocity = (self.velocity + acceleration * t).clamp(self.maxSpeed)
+        self.position = self.position + self.velocity * t
 
     def show(self, screen):
         # print(self.position.get_coord())
-        pygame.draw.circle(screen, self.color, self.position.get_coord(), 2)
+        pygame.draw.circle(screen, self.color, self.position.get_coord(), 5)

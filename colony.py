@@ -22,9 +22,9 @@ class Colony:
         for i in range(self.n):
             self.ant_dict[str(i)] = Ant(Vector(self.position[0], self.position[1]))
 
-    def update(self):
+    def update(self, t):
         for a in self.ant_dict.values():
-            a.update()
+            a.update(t)
 
     def show(self, screen):
         # display all ants
@@ -32,4 +32,4 @@ class Colony:
             a.show(screen)
 
         # display ant hill
-        pygame.draw.circle(screen, self.color, self.position, 10)
+        pygame.draw.circle(screen, self.color, self.position, 15)
