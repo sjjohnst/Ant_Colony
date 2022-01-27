@@ -56,8 +56,10 @@ while run:
 
     if draw_food:
         x, y = pygame.mouse.get_pos()
-        food = Food(x, y)
-        tree.insert(food)
+        food_positions = [(x, y), (x, y+1), (x-0.5, y-0.5), (x+0.5, y+0.5)]
+        food_cluster = [Food(x, y) for x, y in food_positions]
+        for food in food_cluster:
+            tree.insert(food)
 
     if not pause:
         # pygame.draw.circle(screen, orange, (100, 10), 2)

@@ -23,7 +23,7 @@ class Ant:
         self.color = white
         self.maxSpeed = 0.1
         self.steerStrength = 0.06
-        self.wanderStrength = 0.02
+        self.wanderStrength = 0.03
 
         self.position = position
         self.velocity = rand_inUnitCircle()
@@ -39,6 +39,11 @@ class Ant:
 
         self.velocity = (self.velocity + acceleration * t).clamp(self.maxSpeed)
         self.position = self.position + self.velocity * t
+
+    def check_for_food(self):
+        sight_range = 1.0
+        sigth_vec = self.velocity.normalize() * sight_range
+
 
     def show(self, screen):
         # print(self.position.get_coord())
