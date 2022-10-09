@@ -57,7 +57,7 @@ while run:
     if not pause:
         # pygame.draw.circle(screen, orange, (100, 10), 2)
         colony.show(screen)
-        colony.update()
+        colony.update(food_tree)
         food_tree.show(screen)
 
     pygame.display.flip()

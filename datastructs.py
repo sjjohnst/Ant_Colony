@@ -3,7 +3,7 @@ import math
 
 class Vector:
 
-    def __init__(self, x=0, y=0):
+    def __init__(self, x=0.0, y=0.0):
 
         self.x = x
         self.y = y
@@ -123,8 +123,8 @@ class Box:
         yminB = B.top_left.y
         ymaxB = B.bot_right.y
 
-        x_overlap = xmaxA >= xminB and xmaxB >= xmaxA
-        y_overlap = ymaxA >= yminB and ymaxB >= ymaxA
+        x_overlap = xmaxA >= xminB and xmaxB >= xminA
+        y_overlap = ymaxA >= yminB and ymaxB >= yminA
         return x_overlap and y_overlap
 
 
@@ -205,7 +205,7 @@ class QTree:
     def query_circle(self, boundary, centre, radius, found_points):
         """Find the points in the quadtree that lie within radius of centre.
 
-        boundary is a Boc object (a square) that bounds the search circle.
+        boundary is a Box object (a square) that bounds the search circle.
         There is no need to call this method directly: use query_radius.
         """
 
@@ -227,6 +227,7 @@ class QTree:
             self.ne.query_circle(boundary, centre, radius, found_points)
             self.se.query_circle(boundary, centre, radius, found_points)
             self.sw.query_circle(boundary, centre, radius, found_points)
+
         return found_points
 
     def query_radius(self, centre, radius, found_points):
@@ -236,5 +237,6 @@ class QTree:
         top_left = Vector(centre.x - radius, centre.y - radius)
         bot_right = Vector(centre.x + radius, centre.y + radius)
         boundary = Box(top_left, bot_right)
+
         return self.query_circle(boundary, centre, radius, found_points)
 

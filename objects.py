@@ -22,6 +22,11 @@ class Food_Layer:
         # Traverse down the QTree and display every point encountered
         self.show_aux(screen, self.food_tree)
 
+    def query_radius(self, center, radius):
+        found_points = []
+        self.food_tree.query_radius(center, radius, found_points)
+        return found_points
+
     def search(self, point):
         return self.food_tree.search(point)
 

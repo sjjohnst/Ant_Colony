@@ -22,9 +22,10 @@ class Colony:
         for i in range(self.n):
             self.ant_dict[str(i)] = Ant(Vector(self.position[0], self.position[1]))
 
-    def update(self):
+    def update(self, food_tree):
         for a in self.ant_dict.values():
             a.update()
+            a.handle_food(food_tree)
 
     def show(self, screen):
         # display all ants

@@ -3,7 +3,7 @@ import random
 import numpy as np
 import math
 from parameters import *
-from datastructs import Vector
+from datastructs import Vector, angle
 import copy
 
 PI = math.pi
@@ -32,19 +32,20 @@ class Ant:
 
         # Wandering parameters
         self.desired_direction = Vector()
-        self.wander_strength = 0.15
+        self.wander_strength = 0.25
         self.steer_strength = 3.5
 
         self.t0 = pygame.time.get_ticks() / 100.0
 
         self.targetFood = None
+        self.radius = 30
+        self.viewAngle = PI / 15
 
     def update(self):
 
         dt = pygame.time.get_ticks() / 100.0 - self.t0
         self.t0 = pygame.time.get_ticks() / 100.0
 
-        self.handle_food()
         random_unit_vector = Vector(random.uniform(-1.0, 1.0),
                                     random.uniform(-1.0, 1.0))
         self.desired_direction = self.desired_direction + random_unit_vector * self.wander_strength
@@ -59,9 +60,17 @@ class Ant:
         self.velocity.clamp(self.max_speed)
         self.position = self.position + self.velocity * dt
 
-    def handle_food(self):
+    def handle_food(self, food_tree):
         if self.targetFood is None:
-            pass
+            allFood = food_tree.query_radius(self.position, self.radius)
+            if len(allFood) > 0:
+                food = random.choice(allFood)
+                dir_to_food = food - self.position
+                dir_to_food.normalize()
+
+                if angle(dir_to_food, self.velocity) < self.viewAngle / 2:
+                    self.targetFood = food
+
         else:
             self.desired_direction = self.targetFood - self.position
             self.desired_direction.normalize()
