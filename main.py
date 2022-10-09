@@ -1,9 +1,8 @@
 import pygame
 from parameters import *
-from objects import Food
-from qtree import *
+from objects import Food_Layer
 from colony import Colony
-from vector import Vector
+from datastructs import *
 
 '''
 Sam Johnston
@@ -17,18 +16,13 @@ clock = pygame.time.Clock()
 
 pause = False
 
-# a = Ant((resolution[0]/2, resolution[1]/2))
-# print(a.position)
+# Instantiate the colony
+n = 100
+colony = Colony([250, 250], n)
 
-colony = Colony([250, 250], 100)
-
-# Instantiate a quad tree
-top_left = Point(0, 0)
-bot_right = Point(resolution[0], resolution[1])
-box = Box(top_left, bot_right)
-tree = QTree(box)
-
-food = Food(-1, -1)
+# Instantiate a quad tree to store food
+food_tree = Food_Layer()
+food_point = Vector(-1, -1)
 draw_food = False
 
 run = True
@@ -56,15 +50,15 @@ while run:
 
     if draw_food:
         x, y = pygame.mouse.get_pos()
-        if x != food.x or y != food.y:
-            food = Food(x, y)
-            tree.insert(food)
+        if x != food_point.x or y != food_point.y:
+            food_point = Vector(x, y)
+            food_tree.insert(food_point)
 
     if not pause:
         # pygame.draw.circle(screen, orange, (100, 10), 2)
         colony.show(screen)
         colony.update()
-        tree.show(screen)
+        food_tree.show(screen)
 
     pygame.display.flip()
 

@@ -3,7 +3,7 @@ import random
 import numpy as np
 import math
 from parameters import *
-from vector import *
+from datastructs import Vector
 import copy
 
 PI = math.pi

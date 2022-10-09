@@ -2,7 +2,7 @@ import random
 import pygame
 from ant import Ant
 from parameters import *
-from vector import *
+from datastructs import Vector
 
 '''
 Colony class
