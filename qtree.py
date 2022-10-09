@@ -42,8 +42,21 @@ class Box:
         in_y = self.top_left.y <= p.y <= self.bot_right.y
         return in_x and in_y
 
-    def intersects(self, b):
-        pass
+
+def intersect(A: Box, B: Box):
+    xminA = A.top_left.x
+    xmaxA = A.bot_right.x
+    yminA = A.top_left.y
+    ymaxA = A.bot_right.y
+
+    xminB = B.top_left.x
+    xmaxB = B.bot_right.x
+    yminB = B.top_left.y
+    ymaxB = B.bot_right.y
+
+    x_overlap = xmaxA >= xminB and xmaxB >= xmaxA
+    y_overlap = ymaxA >= yminB and ymaxB >= ymaxA
+    return x_overlap and y_overlap
 
 
 # Use a Quadtree for now, maybe change to R-tree if performance is an issue with Quadtree
@@ -110,6 +123,10 @@ class QTree:
         self.north_east = QTree(Box(center_top, center_right))
         self.south_east = QTree(Box(self.box.center, self.box.bot_right))
         self.south_west = QTree(Box(center_left, center_bottom))
+
+    def box_query(self, b: Box):
+        # Return all point coordinates inside the Box parameter
+        pass
 
     def plot(self, ax):
         # Get the rectangle corner and the height/width
