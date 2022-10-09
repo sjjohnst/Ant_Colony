@@ -15,5 +15,5 @@ class Food:
         self.color = color
 
     def show(self, screen):
-        pygame.draw.circle(screen, self.color, (self.x, self.y), 5)
+        pygame.draw.circle(screen, self.color, (self.x, self.y), 2)
 

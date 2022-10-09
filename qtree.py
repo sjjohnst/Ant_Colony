@@ -1,7 +1,6 @@
-import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
-import random
-
+from vector import Vector
+import math
 
 class Point:
     """ A point located at (x,y) in 2D space.
@@ -23,7 +22,7 @@ class Point:
 class Box:
     """ Bounding box class """
 
-    def __init__(self, top_left: Point, bot_right: Point):
+    def __init__(self, top_left: Vector, bot_right: Vector):
         self.top_left = top_left
         self.bot_right = bot_right
 
@@ -37,7 +36,7 @@ class Box:
     def __str__(self):
         return f'top_left: {self.top_left} \nbot_right: {self.bot_right}'
 
-    def contains(self, p: Point):
+    def contains(self, p: Vector):
         in_x = self.top_left.x <= p.x <= self.bot_right.x
         in_y = self.top_left.y <= p.y <= self.bot_right.y
         return in_x and in_y
@@ -64,7 +63,7 @@ class QTree:
     """ A class implementing a Quad Tree. """
 
     def __init__(self, boundary: Box):
-        self.node_capacity = 4
+        self.node_capacity = 1
 
         # This QTree nodes boundary
         self.box = boundary
@@ -79,22 +78,61 @@ class QTree:
         self.south_west = None
         self.south_east = None
 
-    def insert(self, p: Point):
+    def search(self, p):
+        # Find if point p exists in this quadtree
+        if not self.box.contains(p):
+            return False
+
+        elif self.divided is True:
+            # Recurse into the box that might hold the point
+            if self.north_west.box.contains(p):
+                return self.north_west.search(p)
+            if self.north_east.box.contains(p):
+                return self.north_east.search(p)
+            if self.south_west.box.contains(p):
+                return self.south_west.search(p)
+            if self.south_east.box.contains(p):
+                return self.south_east.search(p)
+
+        elif len(self.points) > 0:
+            for d in self.points:
+                if d.x == p.x and d.y == p.y:
+                    return True
+
+        else:
+            return False
+
+    def insert(self, p):
         # ignore points that cannot be placed in this QTree boundary
         if not self.box.contains(p):
             return False
 
+        if self.search(p) is True:
+            return False
+
         # If there is still space in this QTree, add it
-        if len(self.points) < self.node_capacity:
+        if len(self.points) < self.node_capacity and self.divided is False:
             self.points.append(p)
             return True
 
         # Otherwise, check if we need to subdivide into new QTree quadrants,
         # then add to whichever quadrant will take it
+        # Take point from this quad and insert into new child sections
         if self.divided is False:
             self.subdivide()
             self.divided = True
 
+        if len(self.points) >= self.node_capacity:
+            for i in range(len(self.points)):
+                d = self.points[i]
+                if self.north_west.insert(d): continue
+                if self.north_east.insert(d): continue
+                if self.south_west.insert(d): continue
+                if self.south_east.insert(d): continue
+            for i in range(len(self.points)):
+                del self.points[i]
+
+        # Insert point of interest
         if self.north_west.insert(p):
             return True
         if self.north_east.insert(p):
@@ -124,46 +162,44 @@ class QTree:
         self.south_east = QTree(Box(self.box.center, self.box.bot_right))
         self.south_west = QTree(Box(center_left, center_bottom))
 
-    def box_query(self, b: Box):
-        # Return all point coordinates inside the Box parameter
-        pass
+    def nearest_point(self, p: Point):
+        # Find the point in the Quadtree that is nearest to param p
+        if len(self.points) > 0:
+            min_dist = 0
+            j = 0
+            for i in range(len(self.points)):
+                d = self.points[i]
+                dist = math.sqrt((p.x - d.x)*(p.x - d.x) + (p.y - d.y)*(p.y - d.y))
+                if min_dist == 0:
+                    min_dist = dist
+                elif min_dist < dist:
+                    j = i
+            return (self.points[j].x, self.points[j].y)
 
-    def plot(self, ax):
-        # Get the rectangle corner and the height/width
-        anchor_x = self.box.top_left.x
-        anchor_y = self.box.top_left.y
-
-        step_x = self.box.bot_right.x - self.box.top_left.x
-        step_y = self.box.bot_right.y - self.box.top_left.y
-
-        # Plot the boundary rectangle
-        ax.add_patch(Rectangle((anchor_x, anchor_y), step_x, step_y,
-                     edgecolor='black',
-                     fill=False))
-
-        # Plot all the points in this node
-        for point in self.points:
-            point.plot(ax)
-
-        # Plot the children, if they exist
-        if self.north_east is None:
-            pass
+        elif self.divided is True:
+            # p is in the box, but no points in this tree. Check children
+            if self.north_west.box.contains(p):
+                return self.north_west.nearest_point(p)
+            elif self.north_east.box.contains(p):
+                return self.north_east.nearest_point(p)
+            elif self.south_west.box.contains(p):
+                return self.south_west.nearest_point(p)
+            elif self.south_east.box.contains(p):
+                return self.south_east.nearest_point(p)
         else:
-            self.north_east.plot(ax)
-            self.north_west.plot(ax)
-            self.south_west.plot(ax)
-            self.south_east.plot(ax)
+            return False
 
     def show(self, screen):
         # Display all the items stored in this QTree onto a pygame display
-        for point in self.points:
-            point.show(screen)
-
         if self.divided:
             self.north_east.show(screen)
             self.north_west.show(screen)
             self.south_west.show(screen)
             self.south_east.show(screen)
+
+        else:
+            for point in self.points:
+                point.show(screen)
 
 # top_left = Point(0, 0)
 # bot_right = Point(200, 200)

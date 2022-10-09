@@ -20,7 +20,7 @@ pause = False
 # a = Ant((resolution[0]/2, resolution[1]/2))
 # print(a.position)
 
-colony = Colony([300, 200], 100)
+colony = Colony([250, 250], 100)
 
 # Instantiate a quad tree
 top_left = Point(0, 0)
@@ -28,6 +28,7 @@ bot_right = Point(resolution[0], resolution[1])
 box = Box(top_left, bot_right)
 tree = QTree(box)
 
+food = Food(-1, -1)
 draw_food = False
 
 run = True
@@ -55,14 +56,18 @@ while run:
 
     if draw_food:
         x, y = pygame.mouse.get_pos()
-        food = Food(x, y)
-        tree.insert(food)
+        if x != food.x or y != food.y:
+            food = Food(x, y)
+            tree.insert(food)
 
     if not pause:
         # pygame.draw.circle(screen, orange, (100, 10), 2)
         colony.show(screen)
         colony.update()
         tree.show(screen)
+        x, y = pygame.mouse.get_pos()
+        p = tree.nearest_point(Point(x, y))
+        print(p)
 
     pygame.display.flip()
 

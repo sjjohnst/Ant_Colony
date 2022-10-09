@@ -22,7 +22,7 @@ class Ant:
 
         # Constant attributes
         self.color = white
-        self.max_speed = 3.0
+        self.max_speed = 3.5
 
         # Position, speed and direction
         self.position = position
@@ -32,16 +32,19 @@ class Ant:
 
         # Wandering parameters
         self.desired_direction = Vector()
-        self.wander_strength = 0.1
-        self.steer_strength = 2.0
+        self.wander_strength = 0.15
+        self.steer_strength = 3.5
 
-        self.t0 = pygame.time.get_ticks() /100.0
+        self.t0 = pygame.time.get_ticks() / 100.0
+
+        self.targetFood = None
 
     def update(self):
 
-        dt = pygame.time.get_ticks() /100.0 - self.t0
-        self.t0 = pygame.time.get_ticks() /100.0
+        dt = pygame.time.get_ticks() / 100.0 - self.t0
+        self.t0 = pygame.time.get_ticks() / 100.0
 
+        self.handle_food()
         random_unit_vector = Vector(random.uniform(-1.0, 1.0),
                                     random.uniform(-1.0, 1.0))
         self.desired_direction = self.desired_direction + random_unit_vector * self.wander_strength
@@ -55,6 +58,13 @@ class Ant:
         self.velocity = self.velocity + acceleration * dt
         self.velocity.clamp(self.max_speed)
         self.position = self.position + self.velocity * dt
+
+    def handle_food(self):
+        if self.targetFood is None:
+            pass
+        else:
+            self.desired_direction = self.targetFood - self.position
+            self.desired_direction.normalize()
 
     def show(self, screen):
         # print(self.position.get_coord())
