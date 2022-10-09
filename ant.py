@@ -4,6 +4,7 @@ import numpy as np
 import math
 from parameters import *
 from vector import *
+import copy
 
 PI = math.pi
 
@@ -21,41 +22,39 @@ class Ant:
 
         # Constant attributes
         self.color = white
-        self.max_speed = 1.0
+        self.max_speed = 3.0
 
         # Position, speed and direction
         self.position = position
         init_speed = np.random.random_sample() * self.max_speed
         init_direction = np.random.random_sample() * 2 * PI
-
         self.velocity = Vector(init_speed*math.cos(init_direction), init_speed*math.sin(init_direction))
 
         # Wandering parameters
-        init_speed = np.random.random_sample() * self.max_speed
-        init_direction = np.random.random_sample() * 2 * PI
-        self.desired_velocity = Vector(init_speed*math.cos(init_direction), init_speed*math.sin(init_direction))
+        self.desired_direction = Vector()
         self.wander_strength = 0.1
-        self.steer_strength = 0.05
+        self.steer_strength = 2.0
 
-        # print(self.velocity, self.desired_velocity)
+        self.t0 = pygame.time.get_ticks() /100.0
 
     def update(self):
 
-        # Update position and velocity
-        self.position = self.position + self.velocity
+        dt = pygame.time.get_ticks() /100.0 - self.t0
+        self.t0 = pygame.time.get_ticks() /100.0
 
-        # Update velocity towards desired
-        self.velocity = slerp(self.velocity, self.desired_velocity, self.steer_strength)
+        random_unit_vector = Vector(random.uniform(-1.0, 1.0),
+                                    random.uniform(-1.0, 1.0))
+        self.desired_direction = self.desired_direction + random_unit_vector * self.wander_strength
+        self.desired_direction.normalize()
 
-        # Update desired by random perturbation
-        r = list(np.random.randn(2))
-        random_perturbation = Vector(r[0], r[1])
-        # random_perturbation.clamp(self.wander_strength)
-        # self.desired_velocity = self.desired_velocity + random_perturbation
+        desired_velocity = self.desired_direction * self.max_speed
+        desired_steering_force = (desired_velocity - self.velocity) * self.steer_strength
+        acceleration = copy.copy(desired_steering_force)
+        acceleration.clamp(self.steer_strength)
 
-        # Clamp desired velocity and true velocity
+        self.velocity = self.velocity + acceleration * dt
         self.velocity.clamp(self.max_speed)
-        self.desired_velocity.clamp(self.max_speed)
+        self.position = self.position + self.velocity * dt
 
     def show(self, screen):
         # print(self.position.get_coord())

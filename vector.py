@@ -34,10 +34,8 @@ class Vector:
     def clamp(self, max_m):
         m = self.magnitude()
         if m > max_m:
-            theta = math.atan(self.y / self.x)
-            self.x = max_m * math.cos(theta)
-            self.y = max_m * math.sin(theta)
-
+            self.normalize()
+            self.scale(max_m)
         else:
             pass
 
@@ -51,6 +49,12 @@ class Vector:
         new = Vector()
         new.x = self.x - other.x
         new.y = self.y - other.y
+        return new
+
+    def __mul__(self, scalar: float):
+        new = Vector()
+        new.x = self.x * scalar
+        new.y = self.y * scalar
         return new
 
 

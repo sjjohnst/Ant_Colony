@@ -3,6 +3,7 @@ from parameters import *
 from objects import Food
 from qtree import *
 from colony import Colony
+from vector import Vector
 
 '''
 Sam Johnston
