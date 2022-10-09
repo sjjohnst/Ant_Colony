@@ -65,9 +65,6 @@ while run:
         colony.show(screen)
         colony.update()
         tree.show(screen)
-        x, y = pygame.mouse.get_pos()
-        p = tree.nearest_point(Point(x, y))
-        print(p)
 
     pygame.display.flip()
 
