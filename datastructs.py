@@ -233,7 +233,8 @@ class QTree:
         """Find the points in the quadtree that lie within radius of centre."""
 
         # First find the square that bounds the search circle as a Rect object.
-        # boundary = Box(*centre, 2 * radius, 2 * radius)
-        # return self.query_circle(boundary, centre, radius, found_points)
-        pass
+        top_left = Vector(centre.x - radius, centre.y - radius)
+        bot_right = Vector(centre.x + radius, centre.y + radius)
+        boundary = Box(top_left, bot_right)
+        return self.query_circle(boundary, centre, radius, found_points)
 
