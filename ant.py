@@ -37,7 +37,9 @@ class Ant:
 
         self.t0 = pygame.time.get_ticks() / 100.0
 
+        # For grabbing food from the map
         self.targetFood = None
+        self.holding_food = False
         self.radius = 30
         self.viewAngle = PI / 15
 
@@ -75,6 +77,17 @@ class Ant:
             self.desired_direction = self.targetFood - self.position
             self.desired_direction.normalize()
 
+            pickup_radius = 0.1
+            if self.position.distance_to(self.targetFood) < pickup_radius:
+                self.holding_food = True
+                food_tree.delete(self.targetFood)
+                self.targetFood = None
+
     def show(self, screen):
         # print(self.position.get_coord())
+        if self.holding_food:
+            food_pos = Vector(self.velocity.x, self.velocity.y)
+            food_pos.normalize()
+            food_pos = food_pos*0.5 + self.position
+            pygame.draw.circle(screen, green, food_pos.get_coord(), 2)
         pygame.draw.circle(screen, self.color, self.position.get_coord(), 2)
