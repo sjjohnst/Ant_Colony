@@ -61,7 +61,7 @@ class Pheromone_Layer:
         self.color1 = color1
 
         # Time each pheromone lasts on the screen, in seconds
-        self.max_dt = 5
+        self.max_dt = 15
 
         # for storing pheromone and time placed
         # Allows deleting after specific time interval
@@ -83,7 +83,7 @@ class Pheromone_Layer:
     def show(self, screen):
         for time, item in self.pq.queue:
             dt = pygame.time.get_ticks() / 1000.0 - time
-            color_alpha = self.max_dt / (self.max_dt + dt)
+            color_alpha = max(0.0, (self.max_dt - dt) / self.max_dt)
 
             pos = item.get_coord()
             if item.payload == 0:
@@ -101,3 +101,11 @@ class Pheromone_Layer:
             self.p0_tree.insert(position)
         if type == 1:
             self.p1_tree.insert(position)
+
+    def query_radius(self, centre, radius, type):
+        found_points = []
+        if type == 0:
+            self.p0_tree.query_radius(centre, radius, found_points)
+        else:
+            self.p1_tree.query_radius(centre, radius, found_points)
+        return len(found_points)

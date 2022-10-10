@@ -1,4 +1,5 @@
 import math
+import numpy as np
 
 
 class Vector:
@@ -41,6 +42,15 @@ class Vector:
 
     def distance_to(self, other):
         return math.sqrt((self.x-other.x)**2 + (self.y-other.y)**2)
+
+    def rotate(self, theta):
+        # Rotate the vector by theta radians, counterclockwise
+        rotation_matrix = np.array([[math.cos(theta), -math.sin(theta)],
+                                    [math.sin(theta), math.cos(theta)]])
+        old_point = np.array([self.x, self.y])
+        new_point = np.matmul(rotation_matrix, old_point)
+        self.x = new_point[0]
+        self.y = new_point[1]
 
     def __add__(self, other):
         new = Vector()
