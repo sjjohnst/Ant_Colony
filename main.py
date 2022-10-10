@@ -17,7 +17,7 @@ clock = pygame.time.Clock()
 pause = False
 
 # Instantiate the colony
-n = 100
+n = 10
 colony = Colony([250, 250], n)
 
 # Instantiate a quad tree to store food
@@ -43,8 +43,6 @@ while run:
         if event.type == pygame.QUIT:
             run = False
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                pause = not pause
             if event.key == pygame.K_RETURN:
                 draw_food_mode = not draw_food_mode
 
@@ -60,8 +58,7 @@ while run:
             food_point = Vector(x, y)
             food_tree.insert(food_point)
 
-    if not pause:
-        colony.update(food_tree, pheromone_layer)
+    colony.update(food_tree, pheromone_layer)
 
     pheromone_layer.show(screen)
     pheromone_layer.update()

@@ -44,10 +44,10 @@ class Ant:
         # For grabbing food from the map
         self.targetFood = None
         self.holding_food = False
-        self.radius = 20
-        self.p_distance = 15
-        self.p_radius = 5
-        self.viewAngle = 15 * PI / 180
+        self.radius = 15
+        self.p_distance = 30
+        self.p_radius = 8
+        self.viewAngle = 20 * PI / 180
 
     def update(self):
 
@@ -74,7 +74,12 @@ class Ant:
             # We are holding food, follow blue pheromones
             self.follow_pheromones(pheromone_tree, 0)
 
-            # drop off food if in range, turn 180 degrees
+            # Target the colony if nearby and holding food
+            target_radius = 30
+            if self.position.distance_to(self.colony.position) < target_radius:
+                self.desired_direction = (self.colony.position - self.position) * self.max_speed
+
+            # Drop off food if in range, turn 180 degrees
             drop_off_radius = 10
             if self.position.distance_to(self.colony.position) < drop_off_radius:
                 self.holding_food = False
@@ -90,6 +95,10 @@ class Ant:
 
                 if angle(dir_to_food, self.velocity) < self.viewAngle / 2:
                     self.targetFood = food
+                else:
+                    # No nearby food to target, follow red pheromones if any
+                    self.follow_pheromones(pheromone_tree, 1)
+
             else:
                 # No nearby food to target, follow red pheromones if any
                 self.follow_pheromones(pheromone_tree, 1)
@@ -106,6 +115,7 @@ class Ant:
                 self.holding_food = True
                 food_tree.delete(self.targetFood)
                 self.targetFood = None
+                # self.desired_direction.rotate(PI)
 
     def place_pheromones(self, pheromone_tree):
         dt = pygame.time.get_ticks() / 1000.0 - self.t_last_p
@@ -134,7 +144,7 @@ class Ant:
         # Get current forward direction of the ant as an angle
         direction = copy.copy(self.velocity)
         direction.normalize()
-        theta = 30*PI/180
+        theta = 45*PI/180
 
         # Get base unit vectors for 15degrees, 0degrees and -15degrees
         left_vec = copy.copy(direction)

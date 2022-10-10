@@ -8,6 +8,7 @@ class Vector:
         self.x = x
         self.y = y
         self.payload = None
+        self.time = None
 
     def normalize(self):
         m = self.magnitude()

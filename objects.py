@@ -94,8 +94,9 @@ class Pheromone_Layer:
                 pygame.draw.circle(screen, color, pos, 2)
 
     def insert(self, position, type):
-        position.payload = type
         time = pygame.time.get_ticks() / 1000.0
+        position.time = time
+        position.payload = type
         self.pq.put((time, position))
         if type == 0:
             self.p0_tree.insert(position)
@@ -108,4 +109,5 @@ class Pheromone_Layer:
             self.p0_tree.query_radius(centre, radius, found_points)
         else:
             self.p1_tree.query_radius(centre, radius, found_points)
-        return len(found_points)
+        found_points_times = [point.time for point in found_points]
+        return sum(found_points_times)
