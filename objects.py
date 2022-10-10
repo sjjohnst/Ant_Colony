@@ -6,6 +6,7 @@ This file contains class definitions for multiple world objects:
 import pygame
 from parameters import *
 from datastructs import *
+from queue import PriorityQueue
 
 
 class Food_Layer:
@@ -47,12 +48,56 @@ class Food_Layer:
             self.show_aux(screen, tree_node.se)
 
 
-# class Pheromone_Layer:
-#
-#     def __init__(self, color=blue):
-#         top_left = Vector(0, 0)
-#         bot_right = Vector(resolution[0], resolution[1])
-#         boundary = Box(top_left, bot_right)
-#
-#         self.food_tree = QTree(boundary)
-#         self.color = color
+class Pheromone_Layer:
+
+    def __init__(self, color0=blue, color1=red):
+        top_left = Vector(0, 0)
+        bot_right = Vector(resolution[0], resolution[1])
+        boundary = Box(top_left, bot_right)
+
+        self.p0_tree = QTree(boundary)
+        self.p1_tree = QTree(boundary)
+        self.color0 = color0
+        self.color1 = color1
+
+        # Time each pheromone lasts on the screen, in seconds
+        self.max_dt = 5
+
+        # for storing pheromone and time placed
+        # Allows deleting after specific time interval
+        self.pq = PriorityQueue()
+
+    def update(self):
+        for time, item in sorted(self.pq.queue):
+            dt = pygame.time.get_ticks() / 1000.0 - time
+            if dt >= self.max_dt:
+                self.pq.get()
+                type = item.payload
+                if type == 0:
+                    self.p0_tree.delete(item)
+                else:
+                    self.p1_tree.delete(item)
+            else:
+                break
+
+    def show(self, screen):
+        for time, item in self.pq.queue:
+            dt = pygame.time.get_ticks() / 1000.0 - time
+            color_alpha = self.max_dt / (self.max_dt + dt)
+
+            pos = item.get_coord()
+            if item.payload == 0:
+                color = [int(color_alpha*c) for c in self.color0]
+                pygame.draw.circle(screen, color, pos, 2)
+            else:
+                color = [int(color_alpha * c) for c in self.color1]
+                pygame.draw.circle(screen, color, pos, 2)
+
+    def insert(self, position, type):
+        position.payload = type
+        time = pygame.time.get_ticks() / 1000.0
+        self.pq.put((time, position))
+        if type == 0:
+            self.p0_tree.insert(position)
+        if type == 1:
+            self.p1_tree.insert(position)

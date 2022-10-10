@@ -22,10 +22,12 @@ class Colony:
         for i in range(self.n):
             self.ant_dict[str(i)] = Ant(Vector(self.position[0], self.position[1]))
 
-    def update(self, food_tree):
+    def update(self, food_tree, p_tree):
+        # Update every ant, using food and pheromones
         for a in self.ant_dict.values():
             a.update()
             a.handle_food(food_tree)
+            a.handle_pheromones(p_tree)
 
     def show(self, screen):
         # display all ants

@@ -4,9 +4,9 @@ import math
 class Vector:
 
     def __init__(self, x=0.0, y=0.0):
-
         self.x = x
         self.y = y
+        self.payload = None
 
     def normalize(self):
         m = self.magnitude()
@@ -59,6 +59,12 @@ class Vector:
         new.x = self.x * scalar
         new.y = self.y * scalar
         return new
+
+    def __lt__(self, other):
+        if self.x == other.x:
+            return self.y < other.y
+        else:
+            return self.x < other.x
 
 
 def dot(v1: Vector, v2: Vector) -> float:
@@ -200,7 +206,6 @@ class QTree:
         for i, d in enumerate(self.points):
             if d.x == point.x and d.y == point.y:
                 # We have found the point
-                print("Found point!")
                 del self.points[i]
                 return True
 
@@ -209,8 +214,6 @@ class QTree:
                        self.ne.delete(point) or
                        self.sw.delete(point) or
                        self.se.delete(point))
-
-            print("Deleted from subnodes: ", deleted)
 
             # Check if all children are now empty
             if self.nw.empty() and self.ne.empty() and self.sw.empty() and self.se.empty():
