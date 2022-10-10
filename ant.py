@@ -85,9 +85,13 @@ class Ant:
 
     def show(self, screen):
         # print(self.position.get_coord())
+        velocity_dir = Vector(self.velocity.x, self.velocity.y)
+        velocity_dir.normalize()
+
         if self.holding_food:
-            food_pos = Vector(self.velocity.x, self.velocity.y)
-            food_pos.normalize()
-            food_pos = food_pos*0.5 + self.position
-            pygame.draw.circle(screen, green, food_pos.get_coord(), 2)
+            food_pos = velocity_dir*3.0 + self.position
+            pygame.draw.circle(screen, green, food_pos.get_coord(), 2.0)
+
+        butt_segment = velocity_dir*-2.0 + self.position
+        pygame.draw.circle(screen, self.color, butt_segment.get_coord(), 2)
         pygame.draw.circle(screen, self.color, self.position.get_coord(), 2)
