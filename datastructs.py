@@ -183,6 +183,49 @@ class QTree:
                 self.se.insert(point) or
                 self.sw.insert(point))
 
+    def __len__(self):
+        sub_len = 0
+        if self.divided:
+            sub_len = len(self.nw) + len(self.ne) + len(self.sw) + len(self.se)
+        return len(self.points) + sub_len
+
+    def empty(self):
+        return len(self) == 0
+
+    def delete(self, point):
+        # If the point is not in this box then
+        if not self.box.contains(point):
+            return False
+
+        for i, d in enumerate(self.points):
+            if d.x == point.x and d.y == point.y:
+                # We have found the point
+                print("Found point!")
+                del self.points[i]
+                return True
+
+        if self.divided:
+            deleted = (self.nw.delete(point) or
+                       self.ne.delete(point) or
+                       self.sw.delete(point) or
+                       self.se.delete(point))
+
+            print("Deleted from subnodes: ", deleted)
+
+            # Check if all children are now empty
+            if self.nw.empty() and self.ne.empty() and self.sw.empty() and self.se.empty():
+                self.divided = False
+                del self.nw
+                del self.ne
+                del self.sw
+                del self.se
+
+            return deleted
+
+        else:
+            # We checked all the points and none are the one we are looking for
+            return False
+
     def subdivide(self):
         # Get the x and y steps from center to edges
         step_x = (self.box.center.x - self.box.top_left.x)

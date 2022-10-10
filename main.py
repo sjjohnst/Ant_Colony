@@ -17,13 +17,14 @@ clock = pygame.time.Clock()
 pause = False
 
 # Instantiate the colony
-n = 100
+n = 10
 colony = Colony([250, 250], n)
 
 # Instantiate a quad tree to store food
 food_tree = Food_Layer()
 food_point = Vector(-1, -1)
-draw_food = False
+draw = False
+draw_food_mode = True
 
 run = True
 while run:
@@ -41,25 +42,31 @@ while run:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 pause = not pause
+            if event.key == pygame.K_RETURN:
+                draw_food_mode = not draw_food_mode
+            if event.key == pygame.K_BACKSPACE:
+                # undo food placement
+                print("Delete: ", food_point.x, food_point.y)
+                print(food_tree.delete(food_point))
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-            draw_food = True
+            draw = True
 
         if event.type == pygame.MOUSEBUTTONUP:
-            draw_food = False
+            draw = False
 
-    if draw_food:
+    if draw and draw_food_mode:
         x, y = pygame.mouse.get_pos()
         if x != food_point.x or y != food_point.y:
             food_point = Vector(x, y)
             food_tree.insert(food_point)
+            print("Insert: ", food_point.x, food_point.y)
 
     if not pause:
-        # pygame.draw.circle(screen, orange, (100, 10), 2)
-        colony.show(screen)
         colony.update(food_tree)
-        food_tree.show(screen)
 
+    colony.show(screen)
+    food_tree.show(screen)
     pygame.display.flip()
 
 pygame.quit()

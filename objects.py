@@ -33,6 +33,9 @@ class Food_Layer:
     def insert(self, food):
         self.food_tree.insert(food)
 
+    def delete(self, food):
+        return self.food_tree.delete(food)
+
     def show_aux(self, screen, tree_node: QTree):
         for point in tree_node.points:
             pygame.draw.circle(screen, self.color, (point.x, point.y), 2)
@@ -42,3 +45,14 @@ class Food_Layer:
             self.show_aux(screen, tree_node.ne)
             self.show_aux(screen, tree_node.sw)
             self.show_aux(screen, tree_node.se)
+
+
+# class Pheromone_Layer:
+#
+#     def __init__(self, color=blue):
+#         top_left = Vector(0, 0)
+#         bot_right = Vector(resolution[0], resolution[1])
+#         boundary = Box(top_left, bot_right)
+#
+#         self.food_tree = QTree(boundary)
+#         self.color = color
