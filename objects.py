@@ -105,9 +105,10 @@ class Pheromone_Layer:
 
     def query_radius(self, centre, radius, type):
         found_points = []
+        time = pygame.time.get_ticks() / 1000.0
         if type == 0:
             self.p0_tree.query_radius(centre, radius, found_points)
         else:
             self.p1_tree.query_radius(centre, radius, found_points)
-        found_points_times = [point.time for point in found_points]
+        found_points_times = [point.time / time for point in found_points]
         return sum(found_points_times)

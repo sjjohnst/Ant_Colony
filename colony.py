@@ -27,7 +27,7 @@ class Colony:
         # Update every ant, using food and pheromones
         for a in self.ant_dict.values():
             a.update()
-            a.detect_wall()
+            # a.detect_wall()
             a.update_dir(food_tree, p_tree)
             a.place_pheromones(p_tree)
 

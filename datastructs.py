@@ -149,7 +149,7 @@ class QTree:
     """ A class implementing a Quad Tree. """
 
     def __init__(self, boundary: Box):
-        self.max_points = 4
+        self.max_points = 10
 
         # This QTree nodes boundary
         self.box = boundary
