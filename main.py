@@ -17,7 +17,7 @@ clock = pygame.time.Clock()
 pause = False
 
 # Instantiate the colony
-n = 10
+n = 100
 colony = Colony([250, 250], n)
 
 # Instantiate a quad tree to store food

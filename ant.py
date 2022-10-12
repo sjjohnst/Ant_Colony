@@ -45,9 +45,37 @@ class Ant:
         self.targetFood = None
         self.holding_food = False
         self.radius = 15
-        self.p_distance = 30
-        self.p_radius = 8
-        self.viewAngle = 20 * PI / 180
+        self.p_distance = 20
+        self.p_radius = 10
+        self.viewAngle = 30 * PI / 180
+
+    def detect_wall(self):
+        direction = copy.copy(self.velocity)
+        direction.normalize()
+        direction.scale(self.radius)
+        new_position = self.position + direction
+
+        x, y = new_position.get_coord()
+        width, height = resolution
+        conflict = False
+        xn, yn = self.position.get_coord()
+        if 0 > x:
+            xn = self.position.x
+            conflict = True
+        elif x > width:
+            xn = width - self.position.x
+            conflict = True
+        if 0 > y:
+            yn = self.position.y
+            conflict = True
+        elif y > height:
+            yn = height - self.position.y
+            conflict = True
+
+        if conflict:
+            new_dir = Vector(xn, yn)
+            new_dir.normalize()
+            self.desired_direction = new_dir * self.max_speed
 
     def update(self):
 
@@ -85,6 +113,7 @@ class Ant:
                 self.holding_food = False
                 self.targetFood = None
                 self.velocity.rotate(PI)
+                self.desired_direction.rotate(PI)
 
         elif self.targetFood is None:
             allFood = food_tree.query_radius(self.position, self.radius)
@@ -144,7 +173,7 @@ class Ant:
         # Get current forward direction of the ant as an angle
         direction = copy.copy(self.velocity)
         direction.normalize()
-        theta = 45*PI/180
+        theta = 30*PI/180
 
         # Get base unit vectors for 15degrees, 0degrees and -15degrees
         left_vec = copy.copy(direction)
