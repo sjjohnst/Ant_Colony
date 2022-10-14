@@ -145,6 +145,47 @@ class Box:
         return x_overlap and y_overlap
 
 
+# this is because dict.setdefault does not work.
+def dict_setdefault(D, k, d):
+    # D.setdefault(k[,d]) -&gt; D.get(k,d), also set D[k]=d if k not in D
+    r = D.get(k,d)
+    if k not in D:
+        D[k] = d
+    return r
+
+
+class HashMap(object):
+    """
+    Hashmap is a a spatial index which can be used for a broad-phase
+    collision detection strategy.
+    """
+
+    def __init__(self, cell_size):
+        self.cell_size = cell_size
+        self.grid = {}
+
+    def key(self, point):
+        cell_size = self.cell_size
+        return (
+            int((math.floor(point[0] / cell_size)) * cell_size),
+            int((math.floor(point[1] / cell_size)) * cell_size)
+        )
+
+    def insert(self, point: Vector):
+        """
+        Insert point into the hashmap.
+        """
+        # self.grid.setdefault(self.key(point), []).append(point)
+        self.grid.setdefault(self.key(point.get_coord()), []).append(point)
+
+    def query(self, point: Vector):
+        """
+        Return all objects in the cell specified by point.
+        """
+        # return self.grid.setdefault(self.key(point), [])
+        return self.grid.setdefault(self.key(point.get_coord()), [])
+
+
 class QTree:
     """ A class implementing a Quad Tree. """
 
@@ -297,3 +338,9 @@ class QTree:
 
         return self.query_circle(boundary, centre, radius, found_points)
 
+hmap = HashMap(0.5)
+
+hmap.insert(Vector(0.3, 0.6))
+hmap.insert(Vector(4.2, 5.0))
+hmap.insert(Vector(4.3, 5.2))
+print(hmap.query(Vector(4.0, 5.2)))
