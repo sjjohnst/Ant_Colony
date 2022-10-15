@@ -221,10 +221,19 @@ class HashMap(object):
         points = []
         for i in range(minx, maxx+1):
             for j in range(miny, maxy+1):
-                print(self.key((i, j)))
+                # print(self.key((i, j)))
                 points = points + self.query_point((i, j))
 
-        return [p for p in points if boundary.contains(p)]
+        return points
+
+    def query_radius(self, centre, radius):
+        minx = centre.x - radius
+        miny = centre.y - radius
+        maxx = centre.x + radius
+        maxy = centre.y + radius
+        points = self.query_box(Box(Vector(minx, miny), Vector(maxx, maxy)))
+
+        return [p for p in points if centre.distance_to(p) <= radius]
 
 
 class QTree:
@@ -385,7 +394,6 @@ hmap = HashMap(1.0)
 hmap.insert(Vector(0.3, 0.6))
 hmap.insert(Vector(1.5, 2.3))
 hmap.insert(Vector(2.2, 2.5))
-hmap.delete(Vector(2.2, 2.5))
 hmap.insert(Vector(4.2, 5.0))
 hmap.insert(Vector(4.3, 5.2))
 
@@ -396,6 +404,7 @@ bound = Box(Vector(0.3, 1.3), Vector(3.2, 3.4))
 # p = hmap.query_point((4.3, 5.1))
 # print([x.get_coord() for x in p])
 
-points = hmap.query_box(bound)
+# points = hmap.query_box(bound)
+points = hmap.query_radius(Vector(1.3, 2.3), 5.0)
 for p in points:
     print(p.get_coord())
