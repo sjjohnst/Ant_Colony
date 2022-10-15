@@ -178,12 +178,40 @@ class HashMap(object):
         # self.grid.setdefault(self.key(point), []).append(point)
         self.grid.setdefault(self.key(point.get_coord()), []).append(point)
 
-    def query(self, point: Vector):
+    def query_vec(self, point: Vector):
         """
         Return all objects in the cell specified by point.
         """
-        # return self.grid.setdefault(self.key(point), [])
         return self.grid.setdefault(self.key(point.get_coord()), [])
+
+    def query_point(self, point: tuple):
+        """
+        Return all objects in the cell specified by point
+        """
+        return self.grid.setdefault(self.key(point), [])
+
+    def query_box(self, boundary: Box):
+        """
+        Return all objects that are in cells intersecting the box
+        """
+        top_left = boundary.top_left
+        bot_right = boundary.bot_right
+
+        # Generate spatial index keys for all box corners
+        top_left_key = self.key(top_left.get_coord())
+        bot_right_key = self.key(bot_right.get_coord())
+
+        # Iterate over all possible keys within the box, and add their contained points to the list
+        minx, miny = top_left_key
+        maxx, maxy = bot_right_key
+
+        points = []
+        for i in range(minx, maxx+1):
+            for j in range(miny, maxy+1):
+                print(self.key((i, j)))
+                points = points + self.query_point((i, j))
+
+        return [p for p in points if boundary.contains(p)]
 
 
 class QTree:
@@ -338,9 +366,22 @@ class QTree:
 
         return self.query_circle(boundary, centre, radius, found_points)
 
-hmap = HashMap(0.5)
+
+hmap = HashMap(1.0)
 
 hmap.insert(Vector(0.3, 0.6))
+hmap.insert(Vector(1.5, 2.3))
+hmap.insert(Vector(2.2, 2.5))
 hmap.insert(Vector(4.2, 5.0))
 hmap.insert(Vector(4.3, 5.2))
-print(hmap.query(Vector(4.0, 5.2)))
+
+# print(hmap.key((1.3, 0.6)))
+
+bound = Box(Vector(0.3, 1.3), Vector(3.2, 3.4))
+#
+# p = hmap.query_point((4.3, 5.1))
+# print([x.get_coord() for x in p])
+
+points = hmap.query_box(bound)
+for p in points:
+    print(p.get_coord())
