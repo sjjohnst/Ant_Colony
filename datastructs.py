@@ -77,6 +77,9 @@ class Vector:
         else:
             return self.x < other.x
 
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y
+
 
 def dot(v1: Vector, v2: Vector) -> float:
     return v1.x*v2.x + v1.y*v2.y
@@ -177,6 +180,16 @@ class HashMap(object):
         """
         # self.grid.setdefault(self.key(point), []).append(point)
         self.grid.setdefault(self.key(point.get_coord()), []).append(point)
+
+    def delete(self, point: Vector):
+        """
+        Delete point in the hashmap
+        """
+        points = self.grid.setdefault(self.key(point.get_coord()), [])
+        for i, p in enumerate(points):
+            if p == point:
+                del points[i]
+                break
 
     def query_vec(self, point: Vector):
         """
@@ -372,6 +385,7 @@ hmap = HashMap(1.0)
 hmap.insert(Vector(0.3, 0.6))
 hmap.insert(Vector(1.5, 2.3))
 hmap.insert(Vector(2.2, 2.5))
+hmap.delete(Vector(2.2, 2.5))
 hmap.insert(Vector(4.2, 5.0))
 hmap.insert(Vector(4.3, 5.2))
 
