@@ -389,22 +389,22 @@ class QTree:
         return self.query_circle(boundary, centre, radius, found_points)
 
 
-hmap = HashMap(1.0)
-
-hmap.insert(Vector(0.3, 0.6))
-hmap.insert(Vector(1.5, 2.3))
-hmap.insert(Vector(2.2, 2.5))
-hmap.insert(Vector(4.2, 5.0))
-hmap.insert(Vector(4.3, 5.2))
-
-# print(hmap.key((1.3, 0.6)))
-
-bound = Box(Vector(0.3, 1.3), Vector(3.2, 3.4))
+# hmap = HashMap(1.0)
 #
-# p = hmap.query_point((4.3, 5.1))
-# print([x.get_coord() for x in p])
-
-# points = hmap.query_box(bound)
-points = hmap.query_radius(Vector(1.3, 2.3), 5.0)
-for p in points:
-    print(p.get_coord())
+# hmap.insert(Vector(0.3, 0.6))
+# hmap.insert(Vector(1.5, 2.3))
+# hmap.insert(Vector(2.2, 2.5))
+# hmap.insert(Vector(4.2, 5.0))
+# hmap.insert(Vector(4.3, 5.2))
+#
+# # print(hmap.key((1.3, 0.6)))
+#
+# bound = Box(Vector(0.3, 1.3), Vector(3.2, 3.4))
+# #
+# # p = hmap.query_point((4.3, 5.1))
+# # print([x.get_coord() for x in p])
+#
+# # points = hmap.query_box(bound)
+# points = hmap.query_radius(Vector(1.3, 2.3), 5.0)
+# for p in points:
+#     print(p.get_coord())

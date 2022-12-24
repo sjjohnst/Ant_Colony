@@ -19,10 +19,14 @@ class Ant(pygame.sprite.Sprite):
     def __init__(self, position: Vector2, colony):
         super().__init__()
 
-        self.image = pygame.image.load("ant_sprite.png")
-        self.image.set_colorkey(white)
-        self.original_image = self.image
-        self.original_image.set_colorkey(white)
+        self.images = []
+        self.images.append(pygame.image.load("ant_sprite_0.png"))
+        self.images.append(pygame.image.load("ant_sprite_1.png"))
+        self.images.append(pygame.image.load("ant_sprite_0.png"))
+        self.images.append(pygame.image.load("ant_sprite_2.png"))
+        self.index = 0
+
+        self.image = self.images[self.index]
         self.rect = self.image.get_rect(center=position)
         self.colony = colony
 
@@ -83,9 +87,15 @@ class Ant(pygame.sprite.Sprite):
         self.update_image()
 
     def update_image(self):
+
+        self.index += 1
+        if self.index >= len(self.images):
+            self.index = 0
+        self.image = self.images[self.index]
+
         # move image rectangle to position, and update rotation to match velocity
-        angle = self.velocity.as_polar()[1] - 90
-        self.image = pygame.transform.rotate(self.original_image, -angle)
+        angle = self.velocity.as_polar()[1] + 90
+        self.image = pygame.transform.rotate(self.image, -angle)
         self.image.set_colorkey(white)
         self.rect = self.image.get_rect(center=self.rect.center)
         self.rect.center = self.position

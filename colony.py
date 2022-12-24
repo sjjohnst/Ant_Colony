@@ -20,12 +20,15 @@ class Colony:
         self.n = num_ants
         self.color = orange
 
+        self.image = pygame.image.load("ant_hill_sprite.png")
+
         self.ant_sprites = pygame.sprite.Group()
         self.ant_dict = {}
         for i in range(self.n):
             new_ant = Ant(Vector2(position[0], position[1]), self)
             self.ant_dict[str(i)] = new_ant
-            self.ant_sprites.add(new_ant)
+
+        self.ant_sprites.add(self.ant_dict.values())
 
     def update(self, food_tree, p_tree):
         # Update every ant, using food and pheromones
