@@ -1,6 +1,7 @@
 import math
 import numpy as np
-
+import pygame
+from pygame.math import Vector2
 
 class Vector:
 
@@ -122,12 +123,12 @@ class Box:
 
         cx = self.top_left.x + step_x
         cy = self.top_left.y + step_y
-        self.center = Vector(cx, cy)
+        self.center = Vector2(cx, cy)
 
     def __str__(self):
         return f'top_left: {self.top_left} \nbot_right: {self.bot_right}'
 
-    def contains(self, p: Vector):
+    def contains(self, p: Vector2):
         in_x = self.top_left.x <= p.x <= self.bot_right.x
         in_y = self.top_left.y <= p.y <= self.bot_right.y
         return in_x and in_y
@@ -174,28 +175,28 @@ class HashMap(object):
             int((math.floor(point[1] / cell_size)) * cell_size)
         )
 
-    def insert(self, point: Vector):
+    def insert(self, point: Vector2):
         """
         Insert point into the hashmap.
         """
         # self.grid.setdefault(self.key(point), []).append(point)
-        self.grid.setdefault(self.key(point.get_coord()), []).append(point)
+        self.grid.setdefault(self.key((point.x, point.y)), []).append(point)
 
-    def delete(self, point: Vector):
+    def delete(self, point: Vector2):
         """
         Delete point in the hashmap
         """
-        points = self.grid.setdefault(self.key(point.get_coord()), [])
+        points = self.grid.setdefault(self.key((point.x, point.y)), [])
         for i, p in enumerate(points):
             if p == point:
                 del points[i]
                 break
 
-    def query_vec(self, point: Vector):
+    def query_vec(self, point: Vector2):
         """
         Return all objects in the cell specified by point.
         """
-        return self.grid.setdefault(self.key(point.get_coord()), [])
+        return self.grid.setdefault(self.key((point.x, point.y)), [])
 
     def query_point(self, point: tuple):
         """
@@ -211,8 +212,8 @@ class HashMap(object):
         bot_right = boundary.bot_right
 
         # Generate spatial index keys for all box corners
-        top_left_key = self.key(top_left.get_coord())
-        bot_right_key = self.key(bot_right.get_coord())
+        top_left_key = self.key((top_left.x, top_left.y))
+        bot_right_key = self.key((bot_right.x, bot_right.y))
 
         # Iterate over all possible keys within the box, and add their contained points to the list
         minx, miny = top_left_key

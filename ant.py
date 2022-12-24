@@ -16,7 +16,7 @@ Ant class
 
 
 class Ant(pygame.sprite.Sprite):
-    def __init__(self, position: Vector2, colony):
+    def __init__(self, position: Vector2):
         super().__init__()
 
         self.images = []
@@ -26,9 +26,10 @@ class Ant(pygame.sprite.Sprite):
         self.images.append(pygame.image.load("ant_sprite_2.png"))
         self.index = 0
 
+        self.food_image = pygame.image.load("ant_sprite_food.png")
+
         self.image = self.images[self.index]
         self.rect = self.image.get_rect(center=position)
-        self.colony = colony
 
         self.width = self.rect.width
         self.height = self.rect.height
@@ -53,26 +54,18 @@ class Ant(pygame.sprite.Sprite):
         self.t_last_p = pygame.time.get_ticks() / 1000.0
 
         # For grabbing food from the map
-        self.targetFood = None
+        self.target = None
         self.holding_food = False
-        self.radius = 10
+        self.radius = 25
+        self.viewAngle = 60
 
         # For pheromones
         self.p_distance = 20
         self.p_radius = 8
-        self.viewAngle = 30 * PI / 180
 
-    def update(self):
-        #1. Detect food
-        #2. If fail, detect pheromones
-        #3. If fail, wander:
-
+    def update_position(self):
         dt = pygame.time.get_ticks() / 100.0 - self.t0
         self.t0 = pygame.time.get_ticks() / 100.0
-
-        # Update desired direction by rotating by a random angle, range set by wander strength
-        angle = random.uniform(-self.wander_strength, self.wander_strength)
-        self.desired_direction.rotate_ip(angle)
 
         desired_steering_force = self.desired_direction.slerp(self.velocity, 0) * self.steer_strength
         acceleration = desired_steering_force.clamp_magnitude(0, self.max_speed)
@@ -81,15 +74,25 @@ class Ant(pygame.sprite.Sprite):
         self.velocity.clamp_magnitude_ip(self.max_speed)
         self.position = self.position + self.velocity * dt
 
-        # Update image rect
-        self.update_image()
+    def wander(self):
+        # Update desired direction by rotating by a random angle, range set by wander strength
+        angle = random.uniform(-self.wander_strength, self.wander_strength)
+        self.desired_direction.rotate_ip(angle)
+        self.update_position()
 
-    def update_image(self):
+    def follow_target(self):
+        # Update desired direction by rotating by a random angle, range set by wander strength
+        self.desired_direction = self.target - self.position
+        self.update_position()
 
-        self.index = 0
-        if self.index >= len(self.images):
-            self.index = 0
-        self.image = self.images[self.index]
+    def update(self):
+        if not self.holding_food:
+            self.index += 1
+            if self.index >= len(self.images):
+                self.index = 0
+            self.image = self.images[self.index]
+        else:
+            self.image = self.food_image
 
         # move image rectangle to position, and update rotation to match velocity
         angle = self.velocity.as_polar()[1] + 90

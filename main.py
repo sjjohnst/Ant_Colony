@@ -1,8 +1,9 @@
 import pygame
+from pygame.math import Vector2
 from parameters import *
-from objects import Food_Layer, Pheromone_Layer
+from objects import Particle
+from ant import Ant
 from colony import Colony
-from datastructs import *
 
 '''
 Sam Johnston
@@ -16,15 +17,19 @@ clock = pygame.time.Clock()
 
 pause = False
 
-# Instantiate the colony
+# Sprite Groups
 n = 100
-colony = Colony([250, 250], n)
+colony_x, colony_y = 250, 250
+colony = Colony((colony_x, colony_y), n)
+# for i in range(n):
+#     ant = Ant(Vector2(colony_x, colony_y))
+#     ant.add(colony)
 
-# Instantiate a quad tree to store food
-food_tree = Food_Layer()
-food_point = Vector(-1, -1)
+food_group = pygame.sprite.Group()
+food_point = Vector2(-1, -1)
 
-pheromone_layer = Pheromone_Layer()
+pheromone_group_0 = pygame.sprite.Group()
+pheromone_group_1 = pygame.sprite.Group()
 
 draw = False
 draw_food_mode = True
@@ -32,39 +37,38 @@ draw_food_mode = True
 run = True
 while run:
     if not pause:
-        screen.fill(white)
-    delta_time = clock.tick(fps)
+        screen.fill(bckgrnd)
+        delta_time = clock.tick(fps)
 
-    frame_rate = int(clock.get_fps())
-    pygame.display.set_caption("Ant Colony Simulation - FPS : ( {} )".format(frame_rate))
+        frame_rate = int(clock.get_fps())
+        pygame.display.set_caption("Ant Colony Simulation - FPS : ( {} )".format(frame_rate))
 
-    # Handle events
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            run = False
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_RETURN:
-                draw_food_mode = not draw_food_mode
+        # Handle events
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    draw_food_mode = not draw_food_mode
 
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            draw = True
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                draw = True
 
-        if event.type == pygame.MOUSEBUTTONUP:
-            draw = False
+            if event.type == pygame.MOUSEBUTTONUP:
+                draw = False
 
-    if draw and draw_food_mode:
-        x, y = pygame.mouse.get_pos()
-        if x != food_point.x or y != food_point.y:
-            food_point = Vector(x, y)
-            food_tree.insert(food_point)
+        if draw and draw_food_mode:
+            x, y = pygame.mouse.get_pos()
+            if x != food_point.x or y != food_point.y:
+                new_food = Particle(Vector2(x, y), green)
+                new_food.add(food_group)
+                food_point.x = x
+                food_point.y = y
 
-    colony.update(food_tree, pheromone_layer)
+        colony.update(food_group)
+        food_group.draw(screen)
+        colony.show(screen)
 
-    pheromone_layer.show(screen)
-    pheromone_layer.update()
-    food_tree.show(screen)
-    colony.show(screen)
-
-    pygame.display.flip()
+        pygame.display.flip()
 
 pygame.quit()
