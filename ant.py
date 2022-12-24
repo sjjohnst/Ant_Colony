@@ -33,19 +33,19 @@ class Ant(pygame.sprite.Sprite):
         self.width = self.rect.width
         self.height = self.rect.height
 
-        # Constant attributes
         self.max_speed = 3.0
 
         # Position, speed and direction
         self.position = position
-        init_speed = np.random.random_sample() * self.max_speed
-        init_direction = np.random.random_sample() * 2 * PI
-        self.velocity = Vector2(init_speed*math.cos(init_direction), init_speed*math.sin(init_direction))
+        self.velocity = Vector2(random.uniform(-1.0, 1.0),
+                                random.uniform(-1.0, 1.0))
 
         # Wandering parameters
-        self.desired_direction = Vector2()
-        self.wander_strength = 0.3
-        self.steer_strength = 0.8
+        self.desired_direction = Vector2(random.uniform(-1.0, 1.0),
+                                         random.uniform(-1.0, 1.0))
+        self.desired_direction.scale_to_length(self.max_speed)
+        self.wander_strength = 10 # Maximum degrees of change possible for updating desired direction
+        self.steer_strength = 1.5
 
         # Last time updated
         self.t0 = pygame.time.get_ticks() / 100.0
@@ -70,13 +70,11 @@ class Ant(pygame.sprite.Sprite):
         dt = pygame.time.get_ticks() / 100.0 - self.t0
         self.t0 = pygame.time.get_ticks() / 100.0
 
-        random_unit_vector = Vector2(random.uniform(-1.0, 1.0),
-                                     random.uniform(-1.0, 1.0))
-        self.desired_direction = self.desired_direction + random_unit_vector * self.wander_strength
-        self.desired_direction.normalize_ip()
+        # Update desired direction by rotating by a random angle, range set by wander strength
+        angle = random.uniform(-self.wander_strength, self.wander_strength)
+        self.desired_direction.rotate_ip(angle)
 
-        desired_velocity = self.desired_direction * self.max_speed
-        desired_steering_force = desired_velocity.slerp(self.velocity, self.steer_strength)
+        desired_steering_force = self.desired_direction.slerp(self.velocity, 0) * self.steer_strength
         acceleration = desired_steering_force.clamp_magnitude(0, self.max_speed)
 
         self.velocity = self.velocity + acceleration * dt
@@ -88,7 +86,7 @@ class Ant(pygame.sprite.Sprite):
 
     def update_image(self):
 
-        self.index += 1
+        self.index = 0
         if self.index >= len(self.images):
             self.index = 0
         self.image = self.images[self.index]
