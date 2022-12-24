@@ -61,7 +61,7 @@ class Pheromone_Layer:
         self.color1 = color1
 
         # Time each pheromone lasts on the screen, in seconds
-        self.max_dt = 15
+        self.max_dt = 35
 
         # for storing pheromone and time placed
         # Allows deleting after specific time interval

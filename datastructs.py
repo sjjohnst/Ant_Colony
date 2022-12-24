@@ -159,7 +159,7 @@ def dict_setdefault(D, k, d):
 
 class HashMap(object):
     """
-    Hashmap is a a spatial index which can be used for a broad-phase
+    Hashmap is a spatial index which can be used for a broad-phase
     collision detection strategy.
     """
 

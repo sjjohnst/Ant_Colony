@@ -1,13 +1,11 @@
 import pygame
+from pygame import Vector2
 import random
 import numpy as np
 import math
 from parameters import *
-from datastructs import Vector, angle
-import copy
 
 PI = math.pi
-
 
 '''
 Ant class
@@ -17,24 +15,33 @@ Ant class
 '''
 
 
-class Ant:
-    def __init__(self, position: Vector, colony):
+class Ant(pygame.sprite.Sprite):
+    def __init__(self, position: Vector2, colony):
+        super().__init__()
+
+        self.image = pygame.image.load("ant_sprite.png")
+        self.image.set_colorkey(white)
+        self.original_image = self.image
+        self.original_image.set_colorkey(white)
+        self.rect = self.image.get_rect(center=position)
+        self.colony = colony
+
+        self.width = self.rect.width
+        self.height = self.rect.height
 
         # Constant attributes
-        self.color = white
-        self.max_speed = 5.0
-        self.colony = colony
+        self.max_speed = 3.0
 
         # Position, speed and direction
         self.position = position
         init_speed = np.random.random_sample() * self.max_speed
         init_direction = np.random.random_sample() * 2 * PI
-        self.velocity = Vector(init_speed*math.cos(init_direction), init_speed*math.sin(init_direction))
+        self.velocity = Vector2(init_speed*math.cos(init_direction), init_speed*math.sin(init_direction))
 
         # Wandering parameters
-        self.desired_direction = Vector()
-        self.wander_strength = 0.15
-        self.steer_strength = 5.0
+        self.desired_direction = Vector2()
+        self.wander_strength = 0.3
+        self.steer_strength = 0.8
 
         # Last time updated
         self.t0 = pygame.time.get_ticks() / 100.0
@@ -44,177 +51,152 @@ class Ant:
         # For grabbing food from the map
         self.targetFood = None
         self.holding_food = False
-        self.radius = 15
+        self.radius = 10
+
+        # For pheromones
         self.p_distance = 20
-        self.p_radius = 10
+        self.p_radius = 8
         self.viewAngle = 30 * PI / 180
 
-    def detect_wall(self):
-        direction = copy.copy(self.velocity)
-        direction.normalize()
-        direction.scale(self.radius)
-        new_position = self.position + direction
-
-        x, y = new_position.get_coord()
-        width, height = resolution
-        conflict = False
-        xn, yn = self.position.get_coord()
-        if 0 > x:
-            xn = self.position.x
-            conflict = True
-        elif x > width:
-            xn = width - self.position.x
-            conflict = True
-        if 0 > y:
-            yn = self.position.y
-            conflict = True
-        elif y > height:
-            yn = height - self.position.y
-            conflict = True
-
-        if conflict:
-            new_dir = Vector(xn, yn)
-            new_dir.normalize()
-            self.desired_direction = new_dir * self.max_speed
-
     def update(self):
+        #1. Detect food
+        #2. If fail, detect pheromones
+        #3. If fail, wander:
 
         dt = pygame.time.get_ticks() / 100.0 - self.t0
         self.t0 = pygame.time.get_ticks() / 100.0
 
-        random_unit_vector = Vector(random.uniform(-1.0, 1.0),
-                                    random.uniform(-1.0, 1.0))
+        random_unit_vector = Vector2(random.uniform(-1.0, 1.0),
+                                     random.uniform(-1.0, 1.0))
         self.desired_direction = self.desired_direction + random_unit_vector * self.wander_strength
-        self.desired_direction.normalize()
+        self.desired_direction.normalize_ip()
 
         desired_velocity = self.desired_direction * self.max_speed
-        desired_steering_force = (desired_velocity - self.velocity) * self.steer_strength
-        acceleration = copy.copy(desired_steering_force)
-        acceleration.clamp(self.steer_strength)
+        desired_steering_force = desired_velocity.slerp(self.velocity, self.steer_strength)
+        acceleration = desired_steering_force.clamp_magnitude(0, self.max_speed)
 
         self.velocity = self.velocity + acceleration * dt
-        self.velocity.clamp(self.max_speed)
+        self.velocity.clamp_magnitude_ip(self.max_speed)
         self.position = self.position + self.velocity * dt
 
-    def update_dir(self, food_tree, pheromone_tree):
-        # Update the ants desired direction based on state and nearby items
-        if self.holding_food:
-            # We are holding food, follow blue pheromones
-            self.follow_pheromones(pheromone_tree, 0)
+        # Update image rect
+        self.update_image()
 
-            # Target the colony if nearby and holding food
-            target_radius = 30
-            if self.position.distance_to(self.colony.position) < target_radius:
-                self.desired_direction = (self.colony.position - self.position) * self.max_speed
+    def update_image(self):
+        # move image rectangle to position, and update rotation to match velocity
+        angle = self.velocity.as_polar()[1] - 90
+        self.image = pygame.transform.rotate(self.original_image, -angle)
+        self.image.set_colorkey(white)
+        self.rect = self.image.get_rect(center=self.rect.center)
+        self.rect.center = self.position
 
-            # Drop off food if in range, turn 180 degrees
-            drop_off_radius = 10
-            if self.position.distance_to(self.colony.position) < drop_off_radius:
-                self.holding_food = False
-                self.targetFood = None
-                self.velocity.rotate(PI)
-                self.desired_direction.rotate(PI)
-
-        elif self.targetFood is None:
-            allFood = food_tree.query_radius(self.position, self.radius)
-            if len(allFood) > 0:
-                food = random.choice(allFood)
-                dir_to_food = food - self.position
-                dir_to_food.normalize()
-
-                if angle(dir_to_food, self.velocity) < self.viewAngle / 2:
-                    self.targetFood = food
-                else:
-                    # No nearby food to target, follow red pheromones if any
-                    self.follow_pheromones(pheromone_tree, 1)
-
-            else:
-                # No nearby food to target, follow red pheromones if any
-                self.follow_pheromones(pheromone_tree, 1)
-
-        else:
-            # We are targetting food, keep targetting it
-
-            self.desired_direction = self.targetFood - self.position
-            self.desired_direction.normalize()
-
-            # pickup food if in range
-            pickup_radius = 0.1
-            if self.position.distance_to(self.targetFood) < pickup_radius:
-                self.holding_food = True
-                food_tree.delete(self.targetFood)
-                self.targetFood = None
-                # self.desired_direction.rotate(PI)
-
-    def place_pheromones(self, pheromone_tree):
-        dt = pygame.time.get_ticks() / 1000.0 - self.t_last_p
-        if dt < 0.2:
-            return
-
-        position_copy = copy.copy(self.position)
-        if self.holding_food is True:
-            # Place red pheromones, follow blue pheromones
-            pheromone_tree.insert(position_copy, 1)
-            self.t_last_p = pygame.time.get_ticks() / 1000.0
-
-        elif self.targetFood is None:
-            # Place blue pheromones, follow red pheromones
-            pheromone_tree.insert(position_copy, 0)
-            self.t_last_p = pygame.time.get_ticks() / 1000.0
-
-        else: # not holding food, but targetting a food item
-            # Place blue pheromones
-            self.t_last_p = pygame.time.get_ticks() / 1000.0
-            pheromone_tree.insert(position_copy, 1)
-
-    def follow_pheromones(self, pheromone_tree, type):
-        # Update desired direction to be in area with most pheromones of 'type' [0,1]
-
-        # Get current forward direction of the ant as an angle
-        direction = copy.copy(self.velocity)
-        direction.normalize()
-        theta = 30*PI/180
-
-        # Get base unit vectors for 15degrees, 0degrees and -15degrees
-        left_vec = copy.copy(direction)
-        centre_vec = copy.copy(direction)
-        right_vec = copy.copy(direction)
-
-        # Rotate vectors based on direction of ant
-        left_vec.rotate(theta)
-        right_vec.rotate(-theta)
-
-        # get center position of each query circle
-        pos_left = left_vec * self.p_distance + self.position
-        pos_centre = centre_vec * self.p_distance + self.position
-        pos_right = right_vec * self.p_distance + self.position
-
-        # Query each circle for pheromones of desired type
-        left_items = pheromone_tree.query_radius(pos_left, self.p_radius, type)
-        centre_items = pheromone_tree.query_radius(pos_centre, self.p_radius, type)
-        right_items = pheromone_tree.query_radius(pos_right, self.p_radius, type)
-
-        if left_items == 0 and centre_items == 0 and right_items == 0:
-            return
-
-        if left_items >= centre_items and left_items >= right_items:
-            self.desired_direction = left_vec * self.max_speed
-        elif centre_items >= right_items and centre_items >= left_items:
-            self.desired_direction = centre_vec * self.max_speed
-        elif right_items >= centre_items and right_items >= left_items:
-            self.desired_direction = right_vec * self.max_speed
-        else:
-            pass
-
-    def show(self, screen):
-        # print(self.position.get_coord())
-        velocity_dir = Vector(self.velocity.x, self.velocity.y)
-        velocity_dir.normalize()
-
-        if self.holding_food:
-            food_pos = velocity_dir*3.0 + self.position
-            pygame.draw.circle(screen, green, food_pos.get_coord(), 2.0)
-
-        butt_segment = velocity_dir*-2.0 + self.position
-        pygame.draw.circle(screen, self.color, butt_segment.get_coord(), 2)
-        pygame.draw.circle(screen, self.color, self.position.get_coord(), 2)
+    # def update_dir(self, food_tree, pheromone_tree):
+    #     # Update the ants desired direction based on state and nearby items
+    #     if self.holding_food:
+    #         # We are holding food, follow blue pheromones
+    #         self.follow_pheromones(pheromone_tree, 0)
+    #
+    #         # Target the colony if nearby and holding food
+    #         target_radius = 50
+    #         if self.position.distance_to(self.colony.position) < target_radius:
+    #             self.desired_direction = (self.colony.position - self.position) * self.max_speed
+    #
+    #         # Drop off food if in range, turn 180 degrees
+    #         drop_off_radius = 20
+    #         if self.position.distance_to(self.colony.position) < drop_off_radius:
+    #             self.holding_food = False
+    #             self.targetFood = None
+    #             self.velocity.rotate(PI)
+    #             self.desired_direction.rotate(PI)
+    #
+    #     elif self.targetFood is None:
+    #         allFood = food_tree.query_radius(self.position, self.radius)
+    #         if len(allFood) > 0:
+    #             food = random.choice(allFood)
+    #             dir_to_food = food - self.position
+    #             dir_to_food.normalize()
+    #
+    #             if dir_to_food.angle_to(self.position) < self.viewAngle / 2:
+    #                 self.targetFood = food
+    #                 self.desired_direction = self.targetFood - self.position
+    #             else:
+    #                 # No nearby food to target, follow red pheromones if any
+    #                 self.follow_pheromones(pheromone_tree, 1)
+    #
+    #         else:
+    #             # No nearby food to target, follow red pheromones if any
+    #             self.follow_pheromones(pheromone_tree, 1)
+    #
+    #     else:
+    #         # We are targetting food, keep targetting it
+    #
+    #         self.desired_direction = self.targetFood - self.position
+    #         self.desired_direction.normalize()
+    #
+    #         # pickup food if in range
+    #         pickup_radius = 10
+    #         if self.position.distance_to(self.targetFood) < pickup_radius:
+    #             self.holding_food = True
+    #             food_tree.delete(self.targetFood)
+    #             self.targetFood = None
+    #             # self.desired_direction.rotate(PI)
+    #
+    # def place_pheromones(self, pheromone_tree):
+    #     dt = pygame.time.get_ticks() / 1000.0 - self.t_last_p
+    #     if dt < 0.2:
+    #         return
+    #
+    #     position_copy = copy.copy(self.position)
+    #     if self.holding_food is True:
+    #         # Place red pheromones, follow blue pheromones
+    #         pheromone_tree.insert(position_copy, 1)
+    #         self.t_last_p = pygame.time.get_ticks() / 1000.0
+    #
+    #     elif self.targetFood is None:
+    #         # Place blue pheromones, follow red pheromones
+    #         pheromone_tree.insert(position_copy, 0)
+    #         self.t_last_p = pygame.time.get_ticks() / 1000.0
+    #
+    #     else: # not holding food, but targetting a food item
+    #         # Place blue pheromones
+    #         self.t_last_p = pygame.time.get_ticks() / 1000.0
+    #         pheromone_tree.insert(position_copy, 1)
+    #
+    # def follow_pheromones(self, pheromone_tree, type):
+    #     # Update desired direction to be in area with most pheromones of 'type' [0,1]
+    #
+    #     # Get current forward direction of the ant as an angle
+    #     direction = copy.copy(self.velocity)
+    #     direction.normalize()
+    #     theta = 30*PI/180
+    #
+    #     # Get base unit vectors for 15degrees, 0degrees and -15degrees
+    #     left_vec = copy.copy(direction)
+    #     centre_vec = copy.copy(direction)
+    #     right_vec = copy.copy(direction)
+    #
+    #     # Rotate vectors based on direction of ant
+    #     left_vec.rotate(theta)
+    #     right_vec.rotate(-theta)
+    #
+    #     # get center position of each query circle
+    #     pos_left = left_vec * self.p_distance + self.position
+    #     pos_centre = centre_vec * self.p_distance + self.position
+    #     pos_right = right_vec * self.p_distance + self.position
+    #
+    #     # Query each circle for pheromones of desired type
+    #     left_items = pheromone_tree.query_radius(pos_left, self.p_radius, type)
+    #     centre_items = pheromone_tree.query_radius(pos_centre, self.p_radius, type)
+    #     right_items = pheromone_tree.query_radius(pos_right, self.p_radius, type)
+    #
+    #     if left_items == 0 and centre_items == 0 and right_items == 0:
+    #         return
+    #
+    #     if left_items >= centre_items and left_items >= right_items:
+    #         self.desired_direction = left_vec * self.max_speed
+    #     elif centre_items >= right_items and centre_items >= left_items:
+    #         self.desired_direction = centre_vec * self.max_speed
+    #     elif right_items >= centre_items and right_items >= left_items:
+    #         self.desired_direction = right_vec * self.max_speed
+    #     else:
+    #         pass

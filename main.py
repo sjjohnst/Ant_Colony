@@ -32,7 +32,7 @@ draw_food_mode = True
 run = True
 while run:
     if not pause:
-        screen.fill(black)
+        screen.fill(white)
     delta_time = clock.tick(fps)
 
     frame_rate = int(clock.get_fps())
