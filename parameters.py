@@ -1,5 +1,5 @@
 # Module Parameters
-fps = 120
+fps = 40
 resolution = (500, 500)
 bckgrnd = (26, 28, 41)
 black = (0, 0, 0)

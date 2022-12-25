@@ -1,7 +1,7 @@
 import pygame
 from pygame.math import Vector2
 from parameters import *
-from objects import Particle
+from objects import Food
 from ant import Ant
 from colony import Colony
 
@@ -60,12 +60,12 @@ while run:
         if draw and draw_food_mode:
             x, y = pygame.mouse.get_pos()
             if x != food_point.x or y != food_point.y:
-                new_food = Particle(Vector2(x, y), green)
-                new_food.add(food_group)
+                new_food = Food(Vector2(x, y), green)
+                new_food.add(colony.food)
                 food_point.x = x
                 food_point.y = y
 
-        colony.update(food_group)
+        colony.update()
         food_group.draw(screen)
         colony.show(screen)
 

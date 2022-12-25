@@ -8,7 +8,7 @@ import random
 from parameters import bckgrnd
 
 
-class Particle(pygame.sprite.Sprite):
+class Food(pygame.sprite.Sprite):
     def __init__(self, position, color):
         super().__init__()
         self.image = pygame.Surface([4, 4])
@@ -30,3 +30,28 @@ class Particle(pygame.sprite.Sprite):
 
         pygame.draw.circle(self.image, color_shift, (2, 2), self.radius)
 
+
+class Pheromone(pygame.sprite.Sprite):
+    def __init__(self, position, color, decay_t):
+        super().__init__()
+        self.image = pygame.Surface([4, 4])
+        self.image.fill(bckgrnd)
+        self.image.set_colorkey(bckgrnd)
+        self.rect = self.image.get_rect(center=position)
+        self.radius = 2
+        self.position = position
+
+        self.decay_t = decay_t
+        self.end_t = pygame.time.get_ticks() / 1000.0 + decay_t
+        self.color = pygame.Color(color[0], color[1], color[2], 255)
+
+        pygame.draw.circle(self.image, self.color, (2, 2), self.radius)
+
+    def update(self):
+        dist = self.end_t - pygame.time.get_ticks() / 1000.0
+        if dist <= 0:
+            self.kill()
+        else:
+            self.color.a = int(min((dist / self.decay_t)*255, 255))
+            self.image.fill(bckgrnd)
+            pygame.draw.circle(self.image, self.color, (2, 2), self.radius)

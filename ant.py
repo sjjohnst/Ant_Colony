@@ -34,7 +34,7 @@ class Ant(pygame.sprite.Sprite):
         self.width = self.rect.width
         self.height = self.rect.height
 
-        self.max_speed = 3.0
+        self.max_speed = 3.5
 
         # Position, speed and direction
         self.position = position
@@ -57,11 +57,12 @@ class Ant(pygame.sprite.Sprite):
         self.target = None
         self.holding_food = False
         self.radius = 25
+        self.p_radius = 25
         self.viewAngle = 60
 
-        # For pheromones
-        self.p_distance = 20
-        self.p_radius = 8
+    def time_to_place_pheromone(self):
+        dt = pygame.time.get_ticks() / 1000.0 - self.t_last_p
+        return dt >= 0.5
 
     def update_position(self):
         dt = pygame.time.get_ticks() / 100.0 - self.t0
