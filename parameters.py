@@ -1,5 +1,13 @@
+from pygame import image
+
+ant_sprite_0 = image.load("ant_sprite_0.png")
+ant_sprite_1 = image.load("ant_sprite_1.png")
+ant_sprite_2 = image.load("ant_sprite_2.png")
+ant_sprite_f = image.load("ant_sprite_food.png")
+ant_hill_sprite = image.load("ant_hill_sprite.png")
+
 # Module Parameters
-fps = 40
+fps = 90
 resolution = (500, 500)
 bckgrnd = (26, 28, 41)
 black = (0, 0, 0)

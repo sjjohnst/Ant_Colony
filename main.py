@@ -2,8 +2,7 @@ import pygame
 from pygame.math import Vector2
 from parameters import *
 from objects import Food
-from ant import Ant
-from colony import Colony
+from classes import Environment
 
 '''
 Sam Johnston
@@ -20,7 +19,7 @@ pause = False
 # Sprite Groups
 n = 100
 colony_x, colony_y = 250, 250
-colony = Colony((colony_x, colony_y), n)
+colony = Environment((colony_x, colony_y), n)
 # for i in range(n):
 #     ant = Ant(Vector2(colony_x, colony_y))
 #     ant.add(colony)
